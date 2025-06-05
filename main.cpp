@@ -146,4 +146,4 @@ int main() {
     return 0;
 }
 
-//g++ main.cpp Microcontrolador.cpp Disco.cpp BufferManager.cpp -o main
+//g++ main.cpp Microcontrolador.cpp DISCO.cpp BufferManager.cpp -o main

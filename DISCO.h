@@ -15,6 +15,7 @@ public:
     int capSector;
     int sectoresPorBloque;
     int espacioTotal;
+    int espaciocupado;
 
     Disco();
     void pedirDatos();

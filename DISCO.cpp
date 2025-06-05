@@ -84,8 +84,15 @@ void Disco::crearDisco() {
     //fclose(bloques);
     FILE* metadata = fopen("Disco\\Plato0\\Superficie0\\Pista0\\Sector0.txt", "a");
     if(metadata){
-        espacioTotal= espacioTotal-(indiceBloque*tamcabeceraBloque)-indiceBloque;
-        fprintf(metadata,"%i#%i#%i#%i#%i#%i\n", platos, pistas, sectores, capSector, sectoresPorBloque, espacioTotal);//espacio disponible
+        int espacioCUP= contarDigitos(espacioTotal);
+        espaciocupado=(indiceBloque*tamcabeceraBloque)+indiceBloque;
+        espacioTotal= espacioTotal-espaciocupado;
+        fprintf(metadata,"%i#%i#%i#%i#%i#%i", platos, pistas, sectores, capSector, sectoresPorBloque, espaciocupado);//espacio disponible
+        espacioCUP= espacioCUP - contarDigitos(espaciocupado);
+        for(int i=0;i<espacioCUP;i++){
+            fprintf(metadata,"-");
+        }
+        fprintf(metadata,"\n");
         fprintf(metadata, "1"); //bitmap de bloques indicando si estan vacio o no
         for(int i=1;i<indiceBloque;i++){
             fprintf(metadata,"0");
@@ -100,8 +107,11 @@ void Disco::recuperarDatosDisco() {
     if (metadata) {
         char buffer[256];
         fgets(buffer, sizeof(buffer), metadata); // Leer la primera línea
-        int platos, pistas, sectores, capSector, sectoresPorBloque, espacioTotal;
-        fscanf(metadata, "%d#%d#%d#%d#%d#%d#0", &platos, &pistas, &sectores, &capSector, &sectoresPorBloque, &espacioTotal);
+        int platos, pistas, sectores, capSector, sectoresPorBloque, espacioTotal, espaciocupado;
+        char espaciocupado_str[32];
+        fscanf(metadata, "%d#%d#%d#%d#%d#%31[^-\n]", &platos, &pistas, &sectores, &capSector, &sectoresPorBloque, espaciocupado_str);
+        espaciocupado = atoi(espaciocupado_str);
+        espacioTotal=(platos*pistas*2*sectores*capSector)-espaciocupado;
         fclose(metadata);
         cout << "Datos del disco recuperados:\n";
         cout << "Platos: " << platos << "\n";
@@ -109,12 +119,14 @@ void Disco::recuperarDatosDisco() {
         cout << "Sectores: " << sectores << "\n";
         cout << "Capacidad de cada sector: " << capSector << " Bytes\n";
         cout << "Sectores por bloque: " << sectoresPorBloque << "\n";
-        cout << "Espacio total: " << espacioTotal << " Bytes\n";
+        cout << "Espacio total(libre): " << espacioTotal << " Bytes\n";
+        cout << "Espacio ocupado: " << espaciocupado << " Bytes\n";
         this->platos = platos;
         this->pistas = pistas;
         this->sectores = sectores;
         this->capSector = capSector;
         this->sectoresPorBloque = sectoresPorBloque;
+        this->espaciocupado = espaciocupado;
         this->espacioTotal = espacioTotal;
     } else {
         cout << "No se pudo recuperar los datos del disco.\n";
@@ -140,6 +152,7 @@ void Disco::mostrarArbol(const char* path, int nivel) {
 
 void Disco::mostrarInfo() {
     cout << "Capacidad del disco: " << espacioTotal << " Bytes" << endl;
+    cout << "Capacidad ocupada: " << espaciocupado << "Bytes"<<endl;
     cout << "Capacidad del bloque: " << sectoresPorBloque * capSector << " Bytes" << endl;
     cout << "Numero de bloques por pista: " << sectores / sectoresPorBloque << endl;
     cout << "Numero de bloques por plato: " << (pistas * sectores / sectoresPorBloque) * 2 << endl;
